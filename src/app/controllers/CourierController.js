@@ -6,6 +6,7 @@ class CourierController {
     const { page = 1 } = req.query;
 
     const couriers = await Courier.findAll({
+      where: { removed_at: null },
       attributes: ['id', 'name', 'email'],
       order: ['id'],
       limit: 10,
@@ -45,6 +46,14 @@ class CourierController {
   }
 
   async update(req, res) {
+    const courier = await Courier.findByPk(req.params.id);
+
+    if (courier.removed_at) {
+      return res
+        .status(400)
+        .json({ error: 'Removed courier cannot be updated.' });
+    }
+
     const schema = Yup.object().shape({
       name: Yup.string(),
       email: Yup.string().email(),
@@ -55,8 +64,6 @@ class CourierController {
     }
 
     const { email } = req.body;
-
-    const courier = await Courier.findByPk(req.params.id);
 
     if (email && email !== courier.email) {
       const courierExists = await Courier.findOne({ where: { email } });
@@ -78,7 +85,17 @@ class CourierController {
   async delete(req, res) {
     const courier = await Courier.findByPk(req.params.id);
 
-    return res.send();
+    if (courier.removed_at) {
+      return res
+        .status(400)
+        .json({ error: 'This courier has already been removed.' });
+    }
+
+    courier.removed_at = new Date();
+
+    await courier.save();
+
+    return res.send(courier);
   }
 }
 
