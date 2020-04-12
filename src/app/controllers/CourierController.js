@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import Courier from '../models/Courier';
+import File from '../models/File';
 
 class CourierController {
   async index(req, res) {
@@ -7,7 +8,14 @@ class CourierController {
 
     const couriers = await Courier.findAll({
       where: { removed_at: null },
-      attributes: ['id', 'name', 'email'],
+      attributes: ['id', 'name', 'email', 'avatar_id'],
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+          attributes: ['name', 'path', 'url'],
+        },
+      ],
       order: ['id'],
       limit: 10,
       offset: (page - 1) * 10,
