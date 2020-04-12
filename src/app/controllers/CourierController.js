@@ -69,7 +69,9 @@ class CourierController {
       const courierExists = await Courier.findOne({ where: { email } });
 
       if (courierExists) {
-        return res.status(400).json({ error: 'Courier already exists.' });
+        return res
+          .status(400)
+          .json({ error: 'This email is already being used.' });
       }
     }
 
