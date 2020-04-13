@@ -54,6 +54,15 @@ class CourierController {
   }
 
   async update(req, res) {
+    const schema = Yup.object().shape({
+      name: Yup.string(),
+      email: Yup.string().email(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Failed to validate' });
+    }
+
     const courier = await Courier.findByPk(req.params.id);
 
     if (courier.removed_at) {
