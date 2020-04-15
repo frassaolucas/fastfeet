@@ -7,8 +7,7 @@ class CourierController {
     const { page = 1 } = req.query;
 
     const couriers = await Courier.findAll({
-      where: { removed_at: null },
-      attributes: ['id', 'name', 'email', 'avatar_id'],
+      attributes: ['id', 'name', 'email', 'removed_at', 'avatar_id'],
       include: [
         {
           model: File,
@@ -69,15 +68,6 @@ class CourierController {
       return res
         .status(400)
         .json({ error: 'Removed courier cannot be updated.' });
-    }
-
-    const schema = Yup.object().shape({
-      name: Yup.string(),
-      email: Yup.string().email(),
-    });
-
-    if (!schema.isValid(req.body)) {
-      return res.status(400).json({ error: 'Failed to validate' });
     }
 
     const { email } = req.body;
