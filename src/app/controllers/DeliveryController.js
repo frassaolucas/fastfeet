@@ -2,26 +2,49 @@ import * as Yup from 'yup';
 import Delivery from '../models/Delivery';
 import Recipient from '../models/Recipient';
 import Courier from '../models/Courier';
+import File from '../models/File';
 
 class DeliveryController {
   async index(req, res) {
     const { page = 1 } = req.query;
 
     const delivery = await Delivery.findAll({
-      where: { canceled_at: null },
-      attributes: [
-        'id',
-        'recipient_id',
-        'courier_id',
-        'signature_id',
-        'product',
-        'canceled_at',
-        'start_date',
-        'end_date',
-      ],
+      attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
       order: ['id'],
       limit: 10,
       offset: (page - 1) * 10,
+      include: [
+        {
+          model: Recipient,
+          as: 'recipient',
+          attributes: [
+            'name',
+            'street',
+            'number',
+            'complement',
+            'state',
+            'city',
+            'zip_code',
+          ],
+        },
+        {
+          model: Courier,
+          as: 'courier',
+          attributes: ['id', 'name', 'email'],
+          include: [
+            {
+              model: File,
+              as: 'avatar',
+              attributes: ['name', 'url', 'path'],
+            },
+          ],
+        },
+        {
+          model: File,
+          as: 'signature',
+          attributes: ['name', 'url', 'path'],
+        },
+      ],
     });
 
     return res.json(delivery);
@@ -68,9 +91,12 @@ class DeliveryController {
 
   async update(req, res) {
     const schema = Yup.object().shape({
-      recipient_id: Yup.number().required(),
-      courier_id: Yup.number().required(),
-      product: Yup.string().required(),
+      recipient_id: Yup.number(),
+      courier_id: Yup.number(),
+      signature_id: Yup.number(),
+      product: Yup.string(),
+      start_date: Yup.date(),
+      end_date: Yup.date(),
     });
 
     if (!(await schema.isValid(req.body))) {
@@ -82,45 +108,69 @@ class DeliveryController {
     if (courier.removed_at) {
       return res
         .status(400)
-        .json({ error: 'Removed courier cannot be updated.' });
+        .json({ error: 'Removed courier cannot be updated' });
     }
 
-    const { email } = req.body;
+    const {
+      recipient_id,
+      courier_id,
+      signature_id,
+      start_date,
+      end_date,
+    } = req.body;
 
-    if (email && email !== courier.email) {
-      const courierExists = await Courier.findOne({ where: { email } });
-
-      if (courierExists) {
-        return res
-          .status(400)
-          .json({ error: 'This email is already being used.' });
-      }
+    if (recipient_id && !(await Recipient.findByPk(recipient_id))) {
+      return res.status(400).json({
+        error: 'Recipient does not exist or has already been removed',
+      });
     }
 
-    const { id, name } = await courier.update(req.body);
+    if (courier_id && !(await Courier.findByPk(courier_id))) {
+      return res.status(400).json({
+        error: 'Courier does not exist or has already been removed',
+      });
+    }
 
-    return res.json({
-      id,
-      name,
-      email,
-    });
+    if (signature_id && !(await File.findByPk(signature_id))) {
+      return res.status(400).json({
+        error: 'Signature does not exist',
+      });
+    }
+
+    if (start_date) {
+      return res.status(400).json({
+        error: 'Delivery is already on route',
+      });
+    }
+
+    if (end_date) {
+      return res.status(400).json({
+        error: 'Delivery has already been made',
+      });
+    }
+
+    const deliveryUpdated = await Delivery.update(req.body);
+
+    return res.json(deliveryUpdated);
   }
 
-  // async delete(req, res) {
-  //   const courier = await Courier.findByPk(req.params.id);
+  async delete(req, res) {
+    const delivery = await Delivery.findOne({
+      where: { id: req.params.id, canceled_at: null },
+    });
 
-  //   if (courier.removed_at) {
-  //     return res
-  //       .status(400)
-  //       .json({ error: 'This courier has already been removed.' });
-  //   }
+    if (!delivery) {
+      return res.status(400).json({
+        error: 'This delivery does not exist or has already been canceled.',
+      });
+    }
 
-  //   courier.removed_at = new Date();
+    delivery.canceled_at = new Date();
 
-  //   await courier.save();
+    await delivery.save();
 
-  //   return res.send(courier);
-  // }
+    return res.send(delivery);
+  }
 }
 
 export default new DeliveryController();

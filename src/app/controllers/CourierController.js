@@ -92,12 +92,14 @@ class CourierController {
   }
 
   async delete(req, res) {
-    const courier = await Courier.findByPk(req.params.id);
+    const courier = await Courier.findOne({
+      where: { id: req.params.id, removed_at: null },
+    });
 
-    if (courier.removed_at) {
-      return res
-        .status(400)
-        .json({ error: 'This courier has already been removed.' });
+    if (!courier) {
+      return res.status(400).json({
+        error: 'This courier does not exist or has already been removed.',
+      });
     }
 
     courier.removed_at = new Date();
