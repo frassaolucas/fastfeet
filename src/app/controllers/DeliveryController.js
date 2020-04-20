@@ -5,7 +5,8 @@ import Recipient from '../models/Recipient';
 import Courier from '../models/Courier';
 import File from '../models/File';
 
-import Mail from '../../lib/Mail';
+import CreateDelivery from '../jobs/createDelivery';
+import Queue from '../../lib/Queue';
 
 class DeliveryController {
   async index(req, res) {
@@ -84,21 +85,10 @@ class DeliveryController {
       product,
     });
 
-    await Mail.sendMail({
-      to: `${courier.name} <${courier.email}>`,
-      subject: 'Nova entrega',
-      template: 'createDelivery',
-      context: {
-        courier: courier.name,
-        product,
-        recipient: recipient.name,
-        street: recipient.street,
-        number: recipient.number,
-        complement: recipient.complement,
-        city: recipient.city,
-        state: recipient.state,
-        zip_code: recipient.zip_code,
-      },
+    await Queue.add(CreateDelivery.key, {
+      recipient,
+      courier,
+      product,
     });
 
     return res.json({
