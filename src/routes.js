@@ -7,6 +7,7 @@ import RecipientController from './app/controllers/RecipientController';
 import SessionController from './app/controllers/SessionController';
 import CourierController from './app/controllers/CourierController';
 import CourierDeliveriesController from './app/controllers/CourrierDeliveriesController';
+import CourierDeliveredController from './app/controllers/CourierDeliveredController';
 import FileController from './app/controllers/FileController';
 import DeliveryController from './app/controllers/DeliveryController';
 import DeliveryStartController from './app/controllers/DeliveryStartController';
@@ -20,6 +21,7 @@ routes.post('/users', UserController.store);
 routes.post('/sessions', SessionController.store);
 
 routes.get('/couriers/:id/deliveries', CourierDeliveriesController.index);
+routes.get('/couriers/:id/delivered', CourierDeliveredController.index);
 
 routes.put(
   '/couriers/:id/deliveries/:delivery_id/start',
