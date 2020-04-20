@@ -12,12 +12,11 @@ class RecipientController {
       city: Yup.string().required(),
       zip_code: Yup.number()
         .required()
-        .min(8)
-        .max(10),
+        .min(8),
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation has faled' });
+      return res.status(400).json({ error: 'Validation has failed' });
     }
 
     const recipient = await Recipient.create(req.body);

@@ -8,6 +8,7 @@ import SessionController from './app/controllers/SessionController';
 import CourierController from './app/controllers/CourierController';
 import FileController from './app/controllers/FileController';
 import DeliveryController from './app/controllers/DeliveryController';
+import DeliveryStartController from './app/controllers/DeliveryStartController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -16,6 +17,11 @@ const upload = multer(multerConfig);
 
 routes.post('/users', UserController.store);
 routes.post('/sessions', SessionController.store);
+
+routes.put(
+  '/couriers/:id/deliveries/:delivery_id/start',
+  DeliveryStartController.update
+);
 
 // NEED TO BE AUTHENTICATED AFTER THIS LINE
 routes.use(authMiddleware);
@@ -33,6 +39,7 @@ routes.delete('/couriers/:id', CourierController.delete);
 
 routes.get('/deliveries', DeliveryController.index);
 routes.post('/deliveries', DeliveryController.store);
+routes.put('/deliveries/:id', DeliveryController.update);
 routes.delete('/deliveries/:id', DeliveryController.delete);
 
 export default routes;

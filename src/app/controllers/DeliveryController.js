@@ -1,8 +1,11 @@
 import * as Yup from 'yup';
+
 import Delivery from '../models/Delivery';
 import Recipient from '../models/Recipient';
 import Courier from '../models/Courier';
 import File from '../models/File';
+
+import Mail from '../../lib/Mail';
 
 class DeliveryController {
   async index(req, res) {
@@ -81,6 +84,12 @@ class DeliveryController {
       product,
     });
 
+    await Mail.sendMail({
+      to: `${courier.name} <${courier.email}>`,
+      subject: 'Nova entrega',
+      text: 'Você tem uma nova entrega',
+    });
+
     return res.json({
       id,
       recipient_id,
@@ -93,31 +102,24 @@ class DeliveryController {
     const schema = Yup.object().shape({
       recipient_id: Yup.number(),
       courier_id: Yup.number(),
-      signature_id: Yup.number(),
       product: Yup.string(),
-      start_date: Yup.date(),
-      end_date: Yup.date(),
     });
 
     if (!(await schema.isValid(req.body))) {
       return res.status(400).json({ error: 'Failed to validate' });
     }
 
-    const courier = await Courier.findByPk(req.params.id);
+    const delivery = await Delivery.findOne({
+      where: { id: req.params.id, canceled_at: null },
+    });
 
-    if (courier.removed_at) {
+    if (!delivery) {
       return res
         .status(400)
-        .json({ error: 'Removed courier cannot be updated' });
+        .json({ error: 'Delivery does not exist or has been canceled' });
     }
 
-    const {
-      recipient_id,
-      courier_id,
-      signature_id,
-      start_date,
-      end_date,
-    } = req.body;
+    const { recipient_id, courier_id, product } = req.body;
 
     if (recipient_id && !(await Recipient.findByPk(recipient_id))) {
       return res.status(400).json({
@@ -131,25 +133,11 @@ class DeliveryController {
       });
     }
 
-    if (signature_id && !(await File.findByPk(signature_id))) {
-      return res.status(400).json({
-        error: 'Signature does not exist',
-      });
-    }
-
-    if (start_date) {
-      return res.status(400).json({
-        error: 'Delivery is already on route',
-      });
-    }
-
-    if (end_date) {
-      return res.status(400).json({
-        error: 'Delivery has already been made',
-      });
-    }
-
-    const deliveryUpdated = await Delivery.update(req.body);
+    const deliveryUpdated = await delivery.update({
+      recipient_id,
+      courier_id,
+      product,
+    });
 
     return res.json(deliveryUpdated);
   }
