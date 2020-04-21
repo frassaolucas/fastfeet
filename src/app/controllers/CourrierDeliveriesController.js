@@ -1,12 +1,23 @@
 import Delivery from '../models/Delivery';
+import Courier from '../models/Courier';
 import Recipient from '../models/Recipient';
 import File from '../models/File';
 
 class CourierDeliveriesController {
   async index(req, res) {
+    const { id } = req.params;
+
+    const courier = await Courier.findByPk(id);
+
+    if (!courier) {
+      res
+        .status(400)
+        .json({ error: 'Courier does not exist or has been removed' });
+    }
+
     const deliveries = await Delivery.findAll({
       where: {
-        courier_id: req.params.id,
+        courier_id: id,
         canceled_at: null,
         end_date: null,
       },

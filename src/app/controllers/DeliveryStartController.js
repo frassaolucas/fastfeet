@@ -1,4 +1,4 @@
-import { startOfDay, endOfDay, setHours, isAfter, isBefore } from 'date-fns';
+import { startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 
 import Delivery from '../models/Delivery';
@@ -31,15 +31,6 @@ class DeliveryStartController {
     }
 
     const date = new Date();
-
-    const start_hour = setHours(startOfDay(date), 8);
-    const end_hour = setHours(endOfDay(date), 18);
-
-    if (!(isBefore(start_hour, date) && isAfter(end_hour, date))) {
-      return res.status(400).json({
-        error: 'Action not allowed outside work hours - from 8am to 6pm',
-      });
-    }
 
     const deliveries = await Delivery.findAll({
       where: {
