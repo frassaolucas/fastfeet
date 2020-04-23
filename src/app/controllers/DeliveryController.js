@@ -5,6 +5,8 @@ import Recipient from '../models/Recipient';
 import Courier from '../models/Courier';
 import File from '../models/File';
 
+import status from '../../utils/deliveryStatus';
+
 import CreateDelivery from '../jobs/createDelivery';
 import Queue from '../../lib/Queue';
 
@@ -155,6 +157,7 @@ class DeliveryController {
     }
 
     delivery.canceled_at = new Date();
+    delivery.status = status.canceled;
 
     await delivery.save();
 
