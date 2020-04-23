@@ -2,6 +2,7 @@ import { startOfDay, endOfDay, setHours, isAfter, isBefore } from 'date-fns';
 
 import Delivery from '../models/Delivery';
 import Courier from '../models/Courier';
+import File from '../models/File';
 
 class DeliveryEndController {
   async update(req, res) {
@@ -46,7 +47,18 @@ class DeliveryEndController {
       });
     }
 
-    const deliveryUpate = await delivery.update({ end_date: new Date() });
+    const { signature_id } = req.body;
+
+    const signatureImage = await File.findByPk(signature_id);
+
+    if (!signatureImage) {
+      return res.status(400).json({ error: 'Signature image does not exist' });
+    }
+
+    const deliveryUpate = await delivery.update({
+      end_date: date,
+      signature_id,
+    });
 
     return res.json(deliveryUpate);
   }

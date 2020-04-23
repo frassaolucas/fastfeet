@@ -16,6 +16,8 @@ import DeliveryController from './app/controllers/DeliveryController';
 import DeliveryStartController from './app/controllers/DeliveryStartController';
 import DeliveryEndController from './app/controllers/DeliveryEndController';
 
+import DeliveryProblemsController from './app/controllers/DeliveryProblemsController';
+
 import authMiddleware from './app/middlewares/auth';
 
 const routes = new Router();
@@ -36,6 +38,8 @@ routes.put(
   DeliveryEndController.update
 );
 
+routes.post('/deliveries/:id/problem', DeliveryProblemsController.store);
+
 // NEED TO BE AUTHENTICATED AFTER THIS LINE
 routes.use(authMiddleware);
 
@@ -54,5 +58,7 @@ routes.get('/deliveries', DeliveryController.index);
 routes.post('/deliveries', DeliveryController.store);
 routes.put('/deliveries/:id', DeliveryController.update);
 routes.delete('/deliveries/:id', DeliveryController.delete);
+
+routes.get('/deliveries/problems', DeliveryProblemsController.index);
 
 export default routes;
