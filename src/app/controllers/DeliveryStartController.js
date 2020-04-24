@@ -1,6 +1,8 @@
 import { startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 
+import status from '../../utils/deliveryStatus';
+
 import Delivery from '../models/Delivery';
 import Courier from '../models/Courier';
 
@@ -46,7 +48,10 @@ class DeliveryStartController {
       return res.status(400).json({ error: 'Only 5 daily deliveries allowed' });
     }
 
-    const deliveryUpate = await delivery.update({ start_date: new Date() });
+    const deliveryUpate = await delivery.update({
+      start_date: new Date(),
+      status: status.open,
+    });
 
     return res.json(deliveryUpate);
   }

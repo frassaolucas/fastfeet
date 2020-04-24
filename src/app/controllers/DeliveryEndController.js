@@ -1,5 +1,7 @@
 import { startOfDay, endOfDay, setHours, isAfter, isBefore } from 'date-fns';
 
+import status from '../../utils/deliveryStatus';
+
 import Delivery from '../models/Delivery';
 import Courier from '../models/Courier';
 import File from '../models/File';
@@ -58,6 +60,7 @@ class DeliveryEndController {
     const deliveryUpate = await delivery.update({
       end_date: date,
       signature_id,
+      status: status.closed,
     });
 
     return res.json(deliveryUpate);

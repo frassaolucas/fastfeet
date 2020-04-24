@@ -38,6 +38,8 @@ routes.put(
   DeliveryEndController.update
 );
 
+routes.get('/deliveries/problems', DeliveryProblemsController.index);
+routes.get('/deliveries/:id/problems', DeliveryProblemsController.show);
 routes.post('/deliveries/:id/problem', DeliveryProblemsController.store);
 
 // NEED TO BE AUTHENTICATED AFTER THIS LINE
@@ -59,6 +61,9 @@ routes.post('/deliveries', DeliveryController.store);
 routes.put('/deliveries/:id', DeliveryController.update);
 routes.delete('/deliveries/:id', DeliveryController.delete);
 
-routes.get('/deliveries/problems', DeliveryProblemsController.index);
+routes.delete(
+  '/deliveries/:id/problem/cancel',
+  DeliveryProblemsController.delete
+);
 
 export default routes;
