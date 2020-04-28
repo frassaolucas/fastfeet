@@ -51,7 +51,7 @@
   </li>
 </ul>
 
-## :fire: Start
+## :fire: Configuring
 
 Create Docker containers:
 
