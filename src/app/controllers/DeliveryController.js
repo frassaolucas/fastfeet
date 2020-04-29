@@ -5,6 +5,8 @@ import Recipient from '../models/Recipient';
 import Courier from '../models/Courier';
 import File from '../models/File';
 
+import Notification from '../schemas/Notification';
+
 import status from '../../utils/deliveryStatus';
 
 import CreateDelivery from '../jobs/createDelivery';
@@ -85,6 +87,12 @@ class DeliveryController {
       recipient_id,
       courier_id,
       product,
+    });
+
+    // Notify courier
+    await Notification.create({
+      content: `Você tem uma nova entrega`,
+      user: courier_id,
     });
 
     await Queue.add(CreateDelivery.key, {

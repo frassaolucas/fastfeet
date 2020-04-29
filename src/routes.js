@@ -18,6 +18,8 @@ import DeliveryEndController from './app/controllers/DeliveryEndController';
 
 import DeliveryProblemsController from './app/controllers/DeliveryProblemsController';
 
+import NotificationController from './app/controllers/NotificationController';
+
 import authMiddleware from './app/middlewares/auth';
 
 const routes = new Router();
@@ -28,6 +30,12 @@ routes.post('/sessions', SessionController.store);
 
 routes.get('/couriers/:id/deliveries', CourierDeliveriesController.index);
 routes.get('/couriers/:id/delivered', CourierDeliveredController.index);
+
+routes.get('/couriers/:id/notifications', NotificationController.index);
+routes.put(
+  '/couriers/:id/notifications/:notification_id',
+  NotificationController.update
+);
 
 routes.put(
   '/couriers/:id/deliveries/:delivery_id/start',
