@@ -4,6 +4,8 @@
 
 <p align="center">Project developed during Rocketseat GoStack Bootcamp - Challenge</p>
 
+<p>Fastfeet is an application that allows users to ask for products to be delivered.</p>
+
 <p align="center">
   <a href="https://github.com/frassaolucas">
     <img alt="Made By" src="https://img.shields.io/badge/made%20by-frassaolucas-%2304D361">
@@ -56,10 +58,10 @@
 Create Docker containers:
 
 ```
-# Instale uma imagem do Redis
+# install redis image
 docker run --name redisfastfeet -p 6379:6379 -d -t redis:alpine
 
-# Instale uma imagem do Postgres
+# install prosgress image
 docker run --name fastfeet -e POSTGRES_PASSWORD=fastfeet -p 5432:5432 -d postgres
 (Neste caso, seu login e senha será: fastfeet)
 ```
